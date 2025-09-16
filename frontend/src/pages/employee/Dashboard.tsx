@@ -1,54 +1,114 @@
-import React from 'react';
-import { Calendar, Clock, MapPin, Plus } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Calendar, Clock, MapPin, Plus } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
+
+interface Booking {
+  _id: string;
+  chairType: string;
+  chairId: string;
+  date: string;
+  timeSlot: string;
+  location: string;
+  status: string;
+}
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock upcoming bookings
-  const upcomingBookings = [
-    {
-      id: '1',
-      chairType: 'Ergonomic',
-      chairId: 'ERG-001',
-      date: '2024-01-15',
-      time: '09:00 - 12:00',
-      location: 'Floor 2 - Zone A',
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      chairType: 'Bean Bag',
-      chairId: 'BB-005',
-      date: '2024-01-16',
-      time: '14:00 - 17:00',
-      location: 'Floor 1 - Lounge',
-      status: 'confirmed'
-    },
-  ];
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/bookings/my`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        setBookings(data.bookings || []);
+      } catch (err) {
+        setBookings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (token) fetchBookings();
+  }, [token]);
+
+  // Calculate stats
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  const totalBookings = bookings.filter((b) => {
+    const d = new Date(b.date);
+    return d >= startOfMonth && d <= endOfMonth;
+  }).length;
+
+  // Helper to parse booking date and timeSlot
+  function getBookingDateTime(b: Booking) {
+    // If timeSlot is present, use its start time
+    if (b.timeSlot) {
+      // Example timeSlot: "13:00 - 16:00"
+      const startTime = b.timeSlot.split("-")[0].trim();
+      // Combine date and start time
+      return new Date(`${b.date}T${startTime}`);
+    }
+    // Fallback: just date
+    return new Date(b.date);
+  }
+
+  // Show all future confirmed bookings as upcoming
+  const upcomingBookings = bookings.filter((b) => {
+    const bookingDate = getBookingDateTime(b);
+    // Use only date part for comparison
+    return bookingDate >= new Date() && b.status === "confirmed";
+  });
+
+  // Optionally, you can also show a message if there are future bookings but none in next 7 days
+  const next7DaysBookings = bookings.filter((b) => {
+    const d = new Date(b.date);
+    return (
+      d >= now &&
+      d <= new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) &&
+      b.status === "confirmed"
+    );
+  });
+
+  const favoriteType = (() => {
+    const typeCount: Record<string, number> = {};
+    bookings.forEach((b) => {
+      typeCount[b.chairType] = (typeCount[b.chairType] || 0) + 1;
+    });
+    return Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+  })();
 
   const quickStats = [
     {
-      title: 'Total Bookings',
-      value: '12',
-      description: 'This month',
+      title: "Total Bookings",
+      value: totalBookings,
+      description: "This month",
       icon: Calendar,
     },
     {
-      title: 'Upcoming',
-      value: '3',
-      description: 'Next 7 days',
+      title: "Upcoming",
+      value: upcomingBookings.length,
+      description: "Next 7 days",
       icon: Clock,
-    },
-    {
-      title: 'Favorite Type',
-      value: 'Ergonomic',
-      description: 'Most booked',
-      icon: MapPin,
     },
   ];
 
@@ -58,7 +118,7 @@ const Dashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {user?.name?.split(' ')[0]}!
+            Welcome back, {user?.name?.split(" ")[0]}!
           </h1>
           <p className="text-muted-foreground mt-2">
             Here's what's happening with your chair bookings today.
@@ -83,7 +143,9 @@ const Dashboard = () => {
               <stat.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-2xl font-bold text-foreground">
+                {stat.value}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {stat.description}
               </p>
@@ -92,51 +154,60 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Upcoming Bookings */}
+      {/* Recent Bookings */}
       <Card className="shadow-elegant border-0">
         <CardHeader>
-          <CardTitle>Upcoming Bookings</CardTitle>
-          <CardDescription>
-            Your confirmed chair reservations
-          </CardDescription>
+          <CardTitle>Recent Bookings</CardTitle>
+          <CardDescription>Your latest chair reservations</CardDescription>
         </CardHeader>
         <CardContent>
-          {upcomingBookings.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading...
+            </div>
+          ) : bookings.length > 0 ? (
             <div className="space-y-4">
-              {upcomingBookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border bg-surface/50 hover:bg-surface transition-colors"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-primary" />
+              {bookings
+                .slice(-3)
+                .reverse()
+                .map((booking) => (
+                  <div
+                    key={booking._id}
+                    className="flex items-center justify-between p-4 rounded-lg border border-border bg-surface/50 hover:bg-surface transition-colors"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-foreground">
+                          {booking.chairType} Chair
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {booking.chairId} • {booking.location}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          <Clock className="inline-block mr-1 h-4 w-4 align-middle" />
+                          {booking.date} • {booking.timeSlot}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium text-foreground">
-                        {booking.chairType} Chair
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {booking.chairId} • {booking.location}
-                      </div>
+                    <div className="text-right flex flex-col items-end gap-2">
+                      <Badge
+                        variant="secondary"
+                        className={
+                          booking.status === "confirmed"
+                            ? "bg-success/10 text-success border-success/20"
+                            : booking.status === "cancelled"
+                            ? "bg-destructive/10 text-destructive border-destructive/20"
+                            : "bg-muted/10 text-muted border-muted/20"
+                        }
+                      >
+                        {booking.status}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-foreground">
-                      {booking.date}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {booking.time}
-                    </div>
-                    <Badge 
-                      variant="secondary" 
-                      className="mt-1 bg-success/10 text-success border-success/20"
-                    >
-                      Confirmed
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                ))}
               <div className="pt-4 border-t border-border">
                 <Link to="/my-bookings">
                   <Button variant="outline" className="w-full">
@@ -148,9 +219,9 @@ const Dashboard = () => {
           ) : (
             <div className="text-center py-8">
               <Calendar className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mt-4 text-lg font-medium">No upcoming bookings</h3>
+              <h3 className="mt-4 text-lg font-medium">No bookings yet</h3>
               <p className="text-muted-foreground mt-2">
-                You don't have any chair reservations yet.
+                You haven't made any chair reservations yet.
               </p>
               <Link to="/book-chair">
                 <Button className="mt-4">

@@ -34,7 +34,6 @@ export function AppSidebar() {
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Book a Chair", url: "/book-chair", icon: Calendar },
     { title: "My Bookings", url: "/my-bookings", icon: ClipboardList },
-    { title: "Settings", url: "/settings", icon: Settings },
   ];
 
   const adminItems = [
@@ -46,8 +45,6 @@ export function AppSidebar() {
       icon: CalendarCheck,
     },
     { title: "Reports", url: "/admin/reports", icon: BarChart3 },
-    { title: "User Management", url: "/admin/users", icon: Users },
-    { title: "Settings", url: "/admin/settings", icon: Settings },
   ];
 
   const items = user?.role === "admin" ? adminItems : employeeItems;
@@ -56,7 +53,7 @@ export function AppSidebar() {
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+      ? "bg-sidebar-accent text-white font-semibold shadow-sm bg-black" // active state
       : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground";
 
   return (

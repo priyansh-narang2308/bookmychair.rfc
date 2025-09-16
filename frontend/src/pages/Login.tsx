@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -152,18 +152,6 @@ const Login = () => {
                 )}
               </Button>
             </form>
-
-            <div className="text-center">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-
-
-   
           </CardContent>
         </Card>
 

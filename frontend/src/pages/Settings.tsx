@@ -1,67 +1,166 @@
-import React, { useState } from 'react';
-import { User, Bell, Shield, Palette, Globe, Save } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import React, { useEffect, useState } from "react";
+import { User, Bell, Shield, Palette, Globe, Save } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const [profile, setProfile] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    department: 'Engineering',
-    phone: '+1 (555) 123-4567',
+    name: "",
+    email: "",
+    department: "",
+    phone: "",
   });
 
   const [notifications, setNotifications] = useState({
-    emailBookingConfirm: true,
-    emailBookingReminder: true,
+    emailBookingConfirm: false,
+    emailBookingReminder: false,
     emailCancellation: false,
-    pushNotifications: true,
+    pushNotifications: false,
     smsReminders: false,
   });
 
   const [preferences, setPreferences] = useState({
-    defaultBookingDuration: '3',
-    autoCancel: true,
-    preferredChairType: 'Ergonomic',
-    timezone: 'America/New_York',
+    defaultBookingDuration: "",
+    autoCancel: false,
+    preferredChairType: "",
+    timezone: "",
   });
 
+  // Fetch settings from backend on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/settings`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
+        setProfile(data.profile || {});
+        setNotifications(data.notifications || {});
+        setPreferences(data.preferences || {});
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to load settings",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (token) fetchSettings();
+  }, [token]);
+
+  // Save profile
   const handleSaveProfile = async () => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Profile updated",
-      description: "Your profile information has been saved successfully.",
-    });
-    
-    setIsLoading(false);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/settings/profile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(profile),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to save profile");
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been saved successfully.",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to save profile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Save notification preferences
   const handleSaveNotifications = async () => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Notification preferences updated",
-      description: "Your notification settings have been saved.",
-    });
-    
-    setIsLoading(false);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/settings/notifications`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(notifications),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to save notification preferences");
+      toast({
+        title: "Notification preferences updated",
+        description: "Your notification settings have been saved.",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to save notification preferences",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save booking preferences
+  const handleSavePreferences = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/settings/preferences`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(preferences),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to save booking preferences");
+      toast({
+        title: "Booking preferences updated",
+        description: "Your booking settings have been saved.",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to save booking preferences",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -90,8 +189,8 @@ const Settings = () => {
               <User className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">{user?.name}</h3>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <h3 className="font-semibold text-foreground">{profile.name}</h3>
+              <p className="text-sm text-muted-foreground">{profile.email}</p>
               <Badge variant="secondary" className="mt-1 capitalize">
                 {user?.role}
               </Badge>
@@ -104,7 +203,9 @@ const Settings = () => {
               <Input
                 id="name"
                 value={profile.name}
-                onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, name: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -113,7 +214,9 @@ const Settings = () => {
                 id="email"
                 type="email"
                 value={profile.email}
-                onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -121,7 +224,12 @@ const Settings = () => {
               <Input
                 id="department"
                 value={profile.department}
-                onChange={(e) => setProfile(prev => ({ ...prev, department: e.target.value }))}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    department: e.target.value,
+                  }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -129,14 +237,16 @@ const Settings = () => {
               <Input
                 id="phone"
                 value={profile.phone}
-                onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, phone: e.target.value }))
+                }
               />
             </div>
           </div>
 
           <Button onClick={handleSaveProfile} disabled={isLoading}>
             <Save className="mr-2 h-4 w-4" />
-            {isLoading ? 'Saving...' : 'Save Profile'}
+            {isLoading ? "Saving..." : "Save Profile"}
           </Button>
         </CardContent>
       </Card>
@@ -156,7 +266,9 @@ const Settings = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="email-confirm">Email booking confirmations</Label>
+                <Label htmlFor="email-confirm">
+                  Email booking confirmations
+                </Label>
                 <p className="text-sm text-muted-foreground">
                   Get notified when your booking is confirmed
                 </p>
@@ -164,8 +276,11 @@ const Settings = () => {
               <Switch
                 id="email-confirm"
                 checked={notifications.emailBookingConfirm}
-                onCheckedChange={(checked) => 
-                  setNotifications(prev => ({ ...prev, emailBookingConfirm: checked }))
+                onCheckedChange={(checked) =>
+                  setNotifications((prev) => ({
+                    ...prev,
+                    emailBookingConfirm: checked,
+                  }))
                 }
               />
             </div>
@@ -182,8 +297,11 @@ const Settings = () => {
               <Switch
                 id="email-reminder"
                 checked={notifications.emailBookingReminder}
-                onCheckedChange={(checked) => 
-                  setNotifications(prev => ({ ...prev, emailBookingReminder: checked }))
+                onCheckedChange={(checked) =>
+                  setNotifications((prev) => ({
+                    ...prev,
+                    emailBookingReminder: checked,
+                  }))
                 }
               />
             </div>
@@ -200,8 +318,11 @@ const Settings = () => {
               <Switch
                 id="email-cancel"
                 checked={notifications.emailCancellation}
-                onCheckedChange={(checked) => 
-                  setNotifications(prev => ({ ...prev, emailCancellation: checked }))
+                onCheckedChange={(checked) =>
+                  setNotifications((prev) => ({
+                    ...prev,
+                    emailCancellation: checked,
+                  }))
                 }
               />
             </div>
@@ -218,26 +339,11 @@ const Settings = () => {
               <Switch
                 id="push-notifications"
                 checked={notifications.pushNotifications}
-                onCheckedChange={(checked) => 
-                  setNotifications(prev => ({ ...prev, pushNotifications: checked }))
-                }
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="sms-reminders">SMS reminders</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get text message reminders for your bookings
-                </p>
-              </div>
-              <Switch
-                id="sms-reminders"
-                checked={notifications.smsReminders}
-                onCheckedChange={(checked) => 
-                  setNotifications(prev => ({ ...prev, smsReminders: checked }))
+                onCheckedChange={(checked) =>
+                  setNotifications((prev) => ({
+                    ...prev,
+                    pushNotifications: checked,
+                  }))
                 }
               />
             </div>
@@ -245,7 +351,7 @@ const Settings = () => {
 
           <Button onClick={handleSaveNotifications} disabled={isLoading}>
             <Save className="mr-2 h-4 w-4" />
-            {isLoading ? 'Saving...' : 'Save Preferences'}
+            {isLoading ? "Saving..." : "Save Preferences"}
           </Button>
         </CardContent>
       </Card>
@@ -271,7 +377,12 @@ const Settings = () => {
                 min="1"
                 max="8"
                 value={preferences.defaultBookingDuration}
-                onChange={(e) => setPreferences(prev => ({ ...prev, defaultBookingDuration: e.target.value }))}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    defaultBookingDuration: e.target.value,
+                  }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -279,7 +390,12 @@ const Settings = () => {
               <Input
                 id="chair-type"
                 value={preferences.preferredChairType}
-                onChange={(e) => setPreferences(prev => ({ ...prev, preferredChairType: e.target.value }))}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    preferredChairType: e.target.value,
+                  }))
+                }
               />
             </div>
           </div>
@@ -288,27 +404,28 @@ const Settings = () => {
             <div>
               <Label htmlFor="auto-cancel">Auto-cancel no-shows</Label>
               <p className="text-sm text-muted-foreground">
-                Automatically cancel bookings if you don't check in within 15 minutes
+                Automatically cancel bookings if you don't check in within 15
+                minutes
               </p>
             </div>
             <Switch
               id="auto-cancel"
               checked={preferences.autoCancel}
-              onCheckedChange={(checked) => 
-                setPreferences(prev => ({ ...prev, autoCancel: checked }))
+              onCheckedChange={(checked) =>
+                setPreferences((prev) => ({ ...prev, autoCancel: checked }))
               }
             />
           </div>
 
-          <Button>
+          <Button onClick={handleSavePreferences} disabled={isLoading}>
             <Save className="mr-2 h-4 w-4" />
-            Save Preferences
+            {isLoading ? "Saving..." : "Save Preferences"}
           </Button>
         </CardContent>
       </Card>
 
       {/* Security Settings */}
-      {user?.role === 'admin' && (
+      {user?.role === "admin" && (
         <Card className="shadow-elegant border-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -321,15 +438,16 @@ const Settings = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-              <h4 className="font-medium text-primary mb-2">Administrator Access</h4>
+              <h4 className="font-medium text-primary mb-2">
+                Administrator Access
+              </h4>
               <p className="text-sm text-muted-foreground">
-                You have administrator privileges. You can manage all chairs, bookings, and users.
+                You have administrator privileges. You can manage all chairs,
+                bookings, and users.
               </p>
             </div>
-            
-            <Button variant="outline">
-              Change Password
-            </Button>
+
+            <Button variant="outline">Change Password</Button>
           </CardContent>
         </Card>
       )}

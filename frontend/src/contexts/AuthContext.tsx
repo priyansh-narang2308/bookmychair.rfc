@@ -13,6 +13,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
@@ -65,12 +66,17 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("chairscheduler_user");
+    const storedToken = localStorage.getItem("chairscheduler_token");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    }
+    if (storedToken) {
+      setToken(storedToken);
     }
     setIsLoading(false);
   }, []);
@@ -90,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = res.data.user;
       const token = res.data.token;
       setUser(user);
+      setToken(token);
       localStorage.setItem("chairscheduler_user", JSON.stringify(user));
       localStorage.setItem("chairscheduler_token", token);
       setIsLoading(false);
@@ -126,11 +133,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem("chairscheduler_user");
+    localStorage.removeItem("chairscheduler_token");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, signup }}>
+    <AuthContext.Provider
+      value={{ user, token, login, logout, isLoading, signup }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -4,11 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 // Auth pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
+
 
 // Layout
 import Layout from "./components/Layout";
@@ -30,9 +31,12 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children, adminOnly = false }: { 
-  children: React.ReactNode; 
-  adminOnly?: boolean; 
+function ProtectedRoute({
+  children,
+  adminOnly = false,
+}: {
+  children: React.ReactNode;
+  adminOnly?: boolean;
 }) {
   const { user, isLoading } = useAuth();
 
@@ -48,7 +52,7 @@ function ProtectedRoute({ children, adminOnly = false }: {
     return <Navigate to="/login" replace />;
   }
 
-  if (adminOnly && user.role !== 'admin') {
+  if (adminOnly && user.role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -61,7 +65,6 @@ function AppRoutes() {
       {/* Auth routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Protected routes */}
       <Route
@@ -77,7 +80,6 @@ function AppRoutes() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="book-chair" element={<BookChair />} />
         <Route path="my-bookings" element={<MyBookings />} />
-        <Route path="settings" element={<Settings />} />
 
         {/* Admin routes */}
         <Route
@@ -132,11 +134,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <NotificationProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </NotificationProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
