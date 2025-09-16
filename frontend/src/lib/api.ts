@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://bookmychair-rfc-1.onrender.com/api";
 
 export const getPopularChairs = async (token: string) => {
   const res = await axios.get(`${API_URL}/analytics/popular-chairs`, {
@@ -15,5 +15,3 @@ export const getPeakHours = async (token: string) => {
   });
   return res.data;
 };
-
-// Add more analytics endpoints as needed

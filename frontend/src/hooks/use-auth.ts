@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:5001/api/auth";
+const API_URL = "https://bookmychair-rfc-1.onrender.com/api/auth";
 
 export function useAuth() {
   const [user, setUser] = useState(null);

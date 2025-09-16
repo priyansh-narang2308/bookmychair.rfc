@@ -27,7 +27,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = "http://localhost:5001/api/auth";
+const API_URL = "https://bookmychair-rfc-1.onrender.com/api/auth";
 
 const DEMO_USERS: User[] = [
   {

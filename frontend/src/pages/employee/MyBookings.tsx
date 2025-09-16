@@ -27,8 +27,8 @@ interface Booking {
   status: string;
 }
 
-const API_URL = "http://localhost:5001/api/bookings/me";
-const CANCEL_URL = "http://localhost:5001/api/bookings";
+const API_URL = "https://bookmychair-rfc-1.onrender.com/api/bookings/me";
+const CANCEL_URL = "https://bookmychair-rfc-1.onrender.com/api/bookings";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);

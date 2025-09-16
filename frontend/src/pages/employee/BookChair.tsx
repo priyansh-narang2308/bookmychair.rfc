@@ -25,7 +25,7 @@ interface Chair {
   image?: string;
 }
 
-const API_URL = "http://localhost:5001/api/bookings";
+const API_URL = "https://bookmychair-rfc-1.onrender.com/api/bookings";
 
 const BookChair = () => {
   const [selectedChair, setSelectedChair] = useState<Chair | null>(null);
