@@ -41,6 +41,10 @@ app.use("/api", bookingRoutes);
 const chairRoutes = require("./routes/chair");
 app.use("/api", chairRoutes);
 
+// Analytics routes
+const analyticsRoutes = require("./routes/analytics");
+app.use("/api", analyticsRoutes);
+
 // MongoDB connection
 const mongoUri = process.env.MONGO_URI;
 if (!mongoUri) {
