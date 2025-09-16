@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:8081",
+    origin: "https://bookmychair.onrender.com",
     credentials: true,
   },
 });
@@ -18,7 +18,7 @@ app.set("io", io);
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:8081",
+    origin: "https://bookmychair.onrender.com",
     credentials: true,
   })
 );
