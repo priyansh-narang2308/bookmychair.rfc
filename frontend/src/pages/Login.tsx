@@ -50,7 +50,7 @@ const Login = () => {
       if (success) {
         toast({
           title: "Welcome back!",
-          description: "Successfully logged in to Chair Scheduler.",
+          description: "Successfully logged in to ChairFlow.",
         });
       } else {
         setError("Invalid email or password.");
@@ -72,7 +72,7 @@ const Login = () => {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Chair Scheduler
+            ChairFlow
           </h1>
           <p className="text-muted-foreground">
             Sign in to manage your workspace
@@ -162,36 +162,8 @@ const Login = () => {
               </Link>
             </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Demo Accounts
-                </span>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              {demoCredentials.map((cred) => (
-                <button
-                  key={cred.email}
-                  type="button"
-                  onClick={() => {
-                    setEmail(cred.email);
-                    setPassword("password");
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-md border border-border hover:bg-accent transition-base text-sm"
-                >
-                  <div className="text-left">
-                    <div className="font-medium">{cred.role} Account</div>
-                    <div className="text-muted-foreground">{cred.email}</div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
+   
           </CardContent>
         </Card>
 

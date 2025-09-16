@@ -35,14 +35,7 @@ export function TopBar() {
       <div className="flex h-full items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <SidebarTrigger className="h-8 w-8" />
-          
-          <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search chairs, bookings..."
-              className="pl-10 h-9 bg-surface border-border"
-            />
-          </div>
+
         </div>
 
         <div className="flex items-center gap-4">

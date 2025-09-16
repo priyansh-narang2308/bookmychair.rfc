@@ -82,7 +82,7 @@ const Signup = () => {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Chair Scheduler
+            ChairFlow
           </h1>
           <p className="text-muted-foreground">
             Create your account to get started

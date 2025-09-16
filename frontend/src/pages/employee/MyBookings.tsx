@@ -1,105 +1,118 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, X, Edit } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from '@/hooks/use-toast';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
+import { Calendar, Clock, MapPin, X } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/hooks/use-toast";
+import axios from "axios";
 
 interface Booking {
-  id: string;
+  _id: string;
   chairName: string;
   chairId: string;
   chairType: string;
-  location: string;
+  chairLocation: string;
+  chairFeatures: string[];
+  chairStatus: string;
   date: string;
-  time: string;
-  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
-  canCancel: boolean;
+  timeSlot: string;
+  status: string;
 }
 
-const MyBookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: '1',
-      chairName: 'Herman Miller Aeron',
-      chairId: 'ERG-001',
-      chairType: 'Ergonomic',
-      location: 'Floor 2 - Zone A',
-      date: '2024-01-15',
-      time: '09:00 - 12:00',
-      status: 'upcoming',
-      canCancel: true,
-    },
-    {
-      id: '2',
-      chairName: 'Large Bean Bag Blue',
-      chairId: 'BB-001',
-      chairType: 'Bean Bag',
-      location: 'Floor 1 - Lounge',
-      date: '2024-01-14',
-      time: '14:00 - 17:00',
-      status: 'active',
-      canCancel: false,
-    },
-    {
-      id: '3',
-      chairName: 'Steelcase Leap',
-      chairId: 'ERG-002',
-      chairType: 'Ergonomic',
-      location: 'Floor 2 - Zone B',
-      date: '2024-01-12',
-      time: '10:00 - 13:00',
-      status: 'completed',
-      canCancel: false,
-    },
-    {
-      id: '4',
-      chairName: 'Adjustable Bar Stool',
-      chairId: 'HS-001',
-      chairType: 'High Stool',
-      location: 'Floor 2 - Standing Area',
-      date: '2024-01-10',
-      time: '15:00 - 18:00',
-      status: 'cancelled',
-      canCancel: false,
-    },
-  ]);
+const API_URL = "http://localhost:5001/api/bookings/me";
+const CANCEL_URL = "http://localhost:5001/api/bookings";
 
-  const handleCancelBooking = (bookingId: string) => {
-    setBookings(prev => 
-      prev.map(booking => 
-        booking.id === bookingId 
-          ? { ...booking, status: 'cancelled' as const, canCancel: false }
-          : booking
-      )
-    );
-    
-    toast({
-      title: "Booking cancelled",
-      description: "Your chair reservation has been cancelled successfully.",
-    });
+const MyBookings = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [tab, setTab] = useState("all");
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await axios.get(API_URL, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              "chairscheduler_token"
+            )}`,
+          },
+          withCredentials: true,
+        });
+        setBookings(res.data.bookings);
+      } catch (err: any) {
+        toast({
+          title: "Error",
+          description:
+            err?.response?.data?.message || "Could not fetch bookings.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchBookings();
+  }, []);
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      await axios.put(
+        `${CANCEL_URL}/${bookingId}/cancel`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              "chairscheduler_token"
+            )}`,
+          },
+          withCredentials: true,
+        }
+      );
+      setBookings((prev) =>
+        prev.map((b) =>
+          b._id === bookingId ? { ...b, status: "cancelled" } : b
+        )
+      );
+      toast({
+        title: "Booking cancelled",
+        description: "Your chair reservation has been cancelled successfully.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description:
+          err?.response?.data?.message || "Could not cancel booking.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const getStatusColor = (status: Booking['status']) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'upcoming':
-        return 'bg-primary/10 text-primary border-primary/20';
-      case 'active':
-        return 'bg-success/10 text-success border-success/20';
-      case 'completed':
-        return 'bg-muted text-muted-foreground border-muted/20';
-      case 'cancelled':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
+      case "confirmed":
+        return "bg-primary/10 text-primary border-primary/20";
+      case "active":
+        return "bg-success/10 text-success border-success/20";
+      case "completed":
+        return "bg-muted text-muted-foreground border-muted/20";
+      case "cancelled":
+        return "bg-destructive/10 text-destructive border-destructive/20";
       default:
-        return 'bg-muted text-muted-foreground';
+        return "bg-muted text-muted-foreground";
     }
   };
 
   const filterBookings = (status: string) => {
-    if (status === 'all') return bookings;
-    if (status === 'active') return bookings.filter(b => b.status === 'upcoming' || b.status === 'active');
-    return bookings.filter(b => b.status === status);
+    if (status === "all") return bookings;
+    if (status === "active")
+      return bookings.filter(
+        (b) => b.status === "confirmed" || b.status === "active"
+      );
+    return bookings.filter((b) => b.status === status);
   };
 
   const BookingCard = ({ booking }: { booking: Booking }) => (
@@ -111,18 +124,20 @@ const MyBookings = () => {
               <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-foreground">{booking.chairName}</h3>
+              <h3 className="font-semibold text-foreground">
+                {booking.chairName}
+              </h3>
               <p className="text-sm text-muted-foreground">
                 {booking.chairId} • {booking.chairType}
               </p>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {booking.date} • {booking.time}
+                  {booking.date} • {booking.timeSlot}
                 </div>
                 <div className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
-                  {booking.location}
+                  {booking.chairLocation}
                 </div>
               </div>
             </div>
@@ -131,11 +146,11 @@ const MyBookings = () => {
             <Badge className={getStatusColor(booking.status)}>
               {booking.status}
             </Badge>
-            {booking.canCancel && (
+            {booking.status !== "cancelled" && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleCancelBooking(booking.id)}
+                onClick={() => handleCancelBooking(booking._id)}
                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <X className="h-4 w-4" />
@@ -156,7 +171,7 @@ const MyBookings = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue="all" className="w-full" onValueChange={setTab}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All Bookings</TabsTrigger>
           <TabsTrigger value="active">Active</TabsTrigger>
@@ -166,23 +181,25 @@ const MyBookings = () => {
 
         <TabsContent value="all" className="space-y-4">
           <div className="space-y-4">
-            {filterBookings('all').map((booking) => (
-              <BookingCard key={booking.id} booking={booking} />
+            {filterBookings("all").map((booking) => (
+              <BookingCard key={booking._id} booking={booking} />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="active" className="space-y-4">
           <div className="space-y-4">
-            {filterBookings('active').length > 0 ? (
-              filterBookings('active').map((booking) => (
-                <BookingCard key={booking.id} booking={booking} />
+            {filterBookings("active").length > 0 ? (
+              filterBookings("active").map((booking) => (
+                <BookingCard key={booking._id} booking={booking} />
               ))
             ) : (
               <Card className="shadow-soft border-0">
                 <CardContent className="p-12 text-center">
                   <Calendar className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="mt-4 text-lg font-medium">No active bookings</h3>
+                  <h3 className="mt-4 text-lg font-medium">
+                    No active bookings
+                  </h3>
                   <p className="text-muted-foreground mt-2">
                     You don't have any active chair reservations.
                   </p>
@@ -194,16 +211,16 @@ const MyBookings = () => {
 
         <TabsContent value="completed" className="space-y-4">
           <div className="space-y-4">
-            {filterBookings('completed').map((booking) => (
-              <BookingCard key={booking.id} booking={booking} />
+            {filterBookings("completed").map((booking) => (
+              <BookingCard key={booking._id} booking={booking} />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="cancelled" className="space-y-4">
           <div className="space-y-4">
-            {filterBookings('cancelled').map((booking) => (
-              <BookingCard key={booking.id} booking={booking} />
+            {filterBookings("cancelled").map((booking) => (
+              <BookingCard key={booking._id} booking={booking} />
             ))}
           </div>
         </TabsContent>

@@ -88,8 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         { withCredentials: true }
       );
       const user = res.data.user;
+      const token = res.data.token;
       setUser(user);
       localStorage.setItem("chairscheduler_user", JSON.stringify(user));
+      localStorage.setItem("chairscheduler_token", token);
       setIsLoading(false);
       return true;
     } catch (err) {

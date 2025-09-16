@@ -1,116 +1,128 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Armchair, CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from '@/hooks/use-toast';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
+import { Calendar, Clock, MapPin, Armchair, CheckCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/hooks/use-toast";
+import axios from "axios";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Chair {
   id: string;
   name: string;
   type: string;
   location: string;
-  status: 'available' | 'booked' | 'maintenance';
+  status: "available" | "booked" | "maintenance";
   features: string[];
   image?: string;
 }
 
+const API_URL = "http://localhost:5001/api/bookings";
+
 const BookChair = () => {
   const [selectedChair, setSelectedChair] = useState<Chair | null>(null);
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const { user } = useAuth();
 
   const chairCategories = [
     {
-      id: 'ergonomic',
-      name: 'Ergonomic',
-      description: 'Professional chairs with lumbar support',
+      id: "ergonomic",
+      name: "Ergonomic",
+      description: "Professional chairs with lumbar support",
       chairs: [
         {
-          id: 'ERG-001',
-          name: 'Herman Miller Aeron',
-          type: 'Ergonomic',
-          location: 'Floor 2 - Zone A',
-          status: 'available' as const,
-          features: ['Lumbar Support', 'Adjustable Height', 'Mesh Back'],
+          id: "ERG-001",
+          name: "Herman Miller Aeron",
+          type: "Ergonomic",
+          location: "Floor 2 - Zone A",
+          status: "available" as const,
+          features: ["Lumbar Support", "Adjustable Height", "Mesh Back"],
         },
         {
-          id: 'ERG-002',
-          name: 'Steelcase Leap',
-          type: 'Ergonomic',
-          location: 'Floor 2 - Zone B',
-          status: 'available' as const,
-          features: ['4D Armrests', 'Lumbar Support', 'Breathable Fabric'],
+          id: "ERG-002",
+          name: "Steelcase Leap",
+          type: "Ergonomic",
+          location: "Floor 2 - Zone B",
+          status: "available" as const,
+          features: ["4D Armrests", "Lumbar Support", "Breathable Fabric"],
         },
         {
-          id: 'ERG-003',
-          name: 'Humanscale Freedom',
-          type: 'Ergonomic',
-          location: 'Floor 3 - Zone A',
-          status: 'booked' as const,
-          features: ['Auto-Recline', 'Weight-Activated', 'Gel Armrests'],
+          id: "ERG-003",
+          name: "Humanscale Freedom",
+          type: "Ergonomic",
+          location: "Floor 3 - Zone A",
+          status: "available" as const,
+          features: ["Auto-Recline", "Weight-Activated", "Gel Armrests"],
         },
       ],
     },
     {
-      id: 'beanbag',
-      name: 'Bean Bag',
-      description: 'Comfortable casual seating',
+      id: "beanbag",
+      name: "Bean Bag",
+      description: "Comfortable casual seating",
       chairs: [
         {
-          id: 'BB-001',
-          name: 'Large Bean Bag Blue',
-          type: 'Bean Bag',
-          location: 'Floor 1 - Lounge',
-          status: 'available' as const,
-          features: ['Memory Foam', 'Washable Cover', 'Extra Large'],
+          id: "BB-001",
+          name: "Large Bean Bag Blue",
+          type: "Bean Bag",
+          location: "Floor 1 - Lounge",
+          status: "available" as const,
+          features: ["Memory Foam", "Washable Cover", "Extra Large"],
         },
         {
-          id: 'BB-002',
-          name: 'Bean Bag Charcoal',
-          type: 'Bean Bag',
-          location: 'Floor 1 - Lounge',
-          status: 'available' as const,
-          features: ['Microfiber', 'Water Resistant', 'Medium Size'],
+          id: "BB-002",
+          name: "Bean Bag Charcoal",
+          type: "Bean Bag",
+          location: "Floor 1 - Lounge",
+          status: "available" as const,
+          features: ["Microfiber", "Water Resistant", "Medium Size"],
         },
       ],
     },
     {
-      id: 'highstool',
-      name: 'High Stool',
-      description: 'Standing desk compatible stools',
+      id: "highstool",
+      name: "High Stool",
+      description: "Standing desk compatible stools",
       chairs: [
         {
-          id: 'HS-001',
-          name: 'Adjustable Bar Stool',
-          type: 'High Stool',
-          location: 'Floor 2 - Standing Area',
-          status: 'available' as const,
-          features: ['Gas Lift', 'Swivel Base', 'Footrest'],
+          id: "HS-001",
+          name: "Adjustable Bar Stool",
+          type: "High Stool",
+          location: "Floor 2 - Standing Area",
+          status: "available" as const,
+          features: ["Gas Lift", "Swivel Base", "Footrest"],
         },
         {
-          id: 'HS-002',
-          name: 'Ergonomic Stool',
-          type: 'High Stool',
-          location: 'Floor 3 - Standing Area',
-          status: 'maintenance' as const,
-          features: ['Tilt Mechanism', 'Ring Base', 'Fabric Seat'],
+          id: "HS-002",
+          name: "Ergonomic Stool",
+          type: "High Stool",
+          location: "Floor 3 - Standing Area",
+          status: "available" as const,
+          features: ["Tilt Mechanism", "Ring Base", "Fabric Seat"],
         },
       ],
     },
   ];
 
   const timeSlots = [
-    '09:00 - 12:00',
-    '10:00 - 13:00',
-    '12:00 - 15:00',
-    '13:00 - 16:00',
-    '14:00 - 17:00',
-    '15:00 - 18:00',
+    "09:00 - 12:00",
+    "10:00 - 13:00",
+    "12:00 - 15:00",
+    "13:00 - 16:00",
+    "14:00 - 17:00",
+    "15:00 - 18:00",
   ];
 
-  const handleBookChair = () => {
+  const handleBookChair = async () => {
     if (!selectedChair || !selectedDate || !selectedTime) {
       toast({
         title: "Missing information",
@@ -119,28 +131,54 @@ const BookChair = () => {
       });
       return;
     }
-
-    toast({
-      title: "Booking confirmed!",
-      description: `${selectedChair.name} booked for ${selectedDate} at ${selectedTime}`,
-    });
-
-    // Reset form
-    setSelectedChair(null);
-    setSelectedDate('');
-    setSelectedTime('');
+    try {
+      const res = await axios.post(
+        API_URL,
+        {
+          chairId: selectedChair.id,
+          chairName: selectedChair.name,
+          chairType: selectedChair.type,
+          chairLocation: selectedChair.location,
+          chairFeatures: selectedChair.features,
+          chairStatus: selectedChair.status,
+          date: selectedDate,
+          timeSlot: selectedTime,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              "chairscheduler_token"
+            )}`,
+          },
+          withCredentials: true,
+        }
+      );
+      toast({
+        title: "Booking confirmed!",
+        description: `${selectedChair.name} booked for ${selectedDate} at ${selectedTime}`,
+      });
+      setSelectedChair(null);
+      setSelectedDate("");
+      setSelectedTime("");
+    } catch (err: any) {
+      toast({
+        title: "Booking failed",
+        description: err?.response?.data?.message || "Could not book chair.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const getStatusColor = (status: Chair['status']) => {
+  const getStatusColor = (status: Chair["status"]) => {
     switch (status) {
-      case 'available':
-        return 'bg-success/10 text-success border-success/20';
-      case 'booked':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
-      case 'maintenance':
-        return 'bg-warning/10 text-warning border-warning/20';
+      case "available":
+        return "bg-success/10 text-success border-success/20";
+      case "booked":
+        return "bg-destructive/10 text-destructive border-destructive/20";
+      case "maintenance":
+        return "bg-warning/10 text-warning border-warning/20";
       default:
-        return 'bg-muted text-muted-foreground';
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -164,29 +202,41 @@ const BookChair = () => {
                 </TabsTrigger>
               ))}
             </TabsList>
-            
+
             {chairCategories.map((category) => (
-              <TabsContent key={category.id} value={category.id} className="space-y-4">
+              <TabsContent
+                key={category.id}
+                value={category.id}
+                className="space-y-4"
+              >
                 <div className="text-center py-2">
-                  <h3 className="text-lg font-semibold">{category.name} Chairs</h3>
-                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                  <h3 className="text-lg font-semibold">
+                    {category.name} Chairs
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {category.description}
+                  </p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {category.chairs.map((chair) => (
-                    <Card 
-                      key={chair.id} 
+                    <Card
+                      key={chair.id}
                       className={`cursor-pointer transition-all hover:shadow-elegant ${
-                        selectedChair?.id === chair.id 
-                          ? 'ring-2 ring-primary shadow-elegant' 
-                          : 'shadow-soft'
-                      } ${chair.status !== 'available' ? 'opacity-60' : ''}`}
-                      onClick={() => chair.status === 'available' && setSelectedChair(chair)}
+                        selectedChair?.id === chair.id
+                          ? "ring-2 ring-primary shadow-elegant"
+                          : "shadow-soft"
+                      } ${chair.status !== "available" ? "opacity-60" : ""}`}
+                      onClick={() =>
+                        chair.status === "available" && setSelectedChair(chair)
+                      }
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <div>
-                            <CardTitle className="text-base">{chair.name}</CardTitle>
+                            <CardTitle className="text-base">
+                              {chair.name}
+                            </CardTitle>
                             <CardDescription className="flex items-center gap-1 mt-1">
                               <MapPin className="h-3 w-3" />
                               {chair.location}
@@ -200,7 +250,11 @@ const BookChair = () => {
                       <CardContent className="pt-0">
                         <div className="flex flex-wrap gap-1">
                           {chair.features.map((feature) => (
-                            <Badge key={feature} variant="outline" className="text-xs">
+                            <Badge
+                              key={feature}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {feature}
                             </Badge>
                           ))}
@@ -237,7 +291,9 @@ const BookChair = () => {
                 <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
                   <div className="flex items-center gap-2">
                     <Armchair className="h-4 w-4 text-primary" />
-                    <span className="font-medium text-sm">{selectedChair.name}</span>
+                    <span className="font-medium text-sm">
+                      {selectedChair.name}
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {selectedChair.location}
@@ -257,7 +313,7 @@ const BookChair = () => {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split("T")[0]}
                   className="w-full px-3 py-2 border border-input rounded-md bg-background"
                 />
               </div>
@@ -271,8 +327,8 @@ const BookChair = () => {
                       onClick={() => setSelectedTime(slot)}
                       className={`p-2 text-sm rounded-md border transition-colors ${
                         selectedTime === slot
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-background hover:bg-surface border-border'
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background hover:bg-surface border-border"
                       }`}
                     >
                       <Clock className="inline h-3 w-3 mr-1" />
@@ -282,7 +338,7 @@ const BookChair = () => {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={handleBookChair}
                 className="w-full"
                 disabled={!selectedChair || !selectedDate || !selectedTime}

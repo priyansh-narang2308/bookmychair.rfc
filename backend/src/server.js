@@ -23,6 +23,10 @@ app.get("/api/health", (req, res) => {
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
+// Booking routes
+const bookingRoutes = require("./routes/booking");
+app.use("/api", bookingRoutes);
+
 // MongoDB connection
 const mongoUri = process.env.MONGO_URI;
 if (!mongoUri) {
