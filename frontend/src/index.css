@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Chair Rotation Scheduler Design System - Professional & Modern */
+
+@layer base {
+  :root {
+    /* Base colors - Professional neutrals */
+    --background: 0 0% 100%;
+    --foreground: 215 25% 15%;
+    
+    /* Brand colors - Professional blue accent */
+    --primary: 214 84% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 100% 96%;
+    --primary-glow: 214 84% 66%;
+    
+    /* Surface colors */
+    --surface: 0 0% 98%;
+    --surface-hover: 0 0% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+    
+    /* Secondary colors */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 215 25% 15%;
+    
+    /* Muted colors */
+    --muted: 210 17% 92%;
+    --muted-foreground: 215 16% 47%;
+    
+    /* Accent colors */
+    --accent: 214 100% 96%;
+    --accent-foreground: 214 84% 56%;
+    
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Interactive elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 214 84% 56%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+    
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 215 25% 15%;
+    --sidebar-primary: 214 84% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 100% 96%;
+    --sidebar-accent-foreground: 214 84% 56%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 214 84% 56%;
+    
+    /* Layout */
+    --radius: 0.5rem;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-surface: linear-gradient(180deg, hsl(var(--surface)), hsl(var(--background)));
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px -1px hsl(var(--primary) / 0.1);
+    --shadow-md: 0 4px 12px -2px hsl(var(--primary) / 0.15);
+    --shadow-lg: 0 10px 25px -5px hsl(var(--primary) / 0.2);
+    
+    /* Animations */
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    
+    --primary: 214 84% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 35% 15%;
+    --primary-glow: 214 84% 66%;
+    
+    --surface: 224 64% 6%;
+    --surface-hover: 224 60% 8%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+    
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 213 31% 91%;
+    
+    --muted: 215 28% 17%;
+    --muted-foreground: 217 11% 65%;
+    
+    --accent: 215 28% 17%;
+    --accent-foreground: 214 84% 56%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+    
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 214 84% 56%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+    
+    --sidebar-background: 224 64% 6%;
+    --sidebar-foreground: 213 31% 91%;
+    --sidebar-primary: 214 84% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 214 84% 56%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 214 84% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-surface {
+    background: var(--gradient-surface);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .transition-base {
+    transition: var(--transition-base);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+}
