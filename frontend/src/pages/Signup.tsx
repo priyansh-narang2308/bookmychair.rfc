@@ -1,62 +1,79 @@
-import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { Navigate, Link } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Signup = () => {
-  const { user } = useAuth();
+  const { user, signup, isLoading } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "user", // default role
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (user) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+    return (
+      <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
+    setError("");
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
-
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError("Password must be at least 6 characters");
       return;
     }
-
     setIsSubmitting(true);
-
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    toast({
-      title: "Account created!",
-      description: "Your account has been created successfully. Please sign in.",
-    });
-
+    const result = await signup(
+      formData.name,
+      formData.email,
+      formData.password,
+      formData.role === "user" ? "employee" : "admin"
+    );
     setIsSubmitting(false);
-    // In a real app, redirect to login or auto-login
-    window.location.href = '/login';
+    if (result.success) {
+      toast({
+        title: "Account created!",
+        description: `Your ${formData.role} account has been created successfully. Please sign in.`,
+      });
+      window.location.href = "/login";
+    } else {
+      setError(result.error || "Signup failed");
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -74,7 +91,9 @@ const Signup = () => {
 
         <Card className="shadow-elegant border-0">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-semibold">Create account</CardTitle>
+            <CardTitle className="text-2xl font-semibold">
+              Create account
+            </CardTitle>
             <CardDescription>
               Enter your information to create your account
             </CardDescription>
@@ -108,7 +127,7 @@ const Signup = () => {
                   disabled={isSubmitting}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -137,24 +156,40 @@ const Signup = () => {
                 />
               </div>
 
+              {/* Role Dropdown */}
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, role: value }))
+                  }
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isSubmitting}
-              >
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...
                   </>
                 ) : (
-                  'Create account'
+                  "Create account"
                 )}
               </Button>
             </form>
@@ -162,7 +197,7 @@ const Signup = () => {
         </Card>
 
         <div className="text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className="text-primary hover:underline">
             Sign in
           </Link>

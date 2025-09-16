@@ -1,50 +1,70 @@
-import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, ChevronRight } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { Navigate, Link } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, ChevronRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Login = () => {
   const { user, login, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (user) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+    return (
+      <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
-      const success = await login(email, password);
+      const success = await login(
+        email,
+        password,
+        role === "user" ? "employee" : "admin"
+      );
       if (success) {
         toast({
           title: "Welcome back!",
           description: "Successfully logged in to Chair Scheduler.",
         });
       } else {
-        setError('Invalid email or password. Try: employee@test.com or admin@test.com with password "password"');
+        setError("Invalid email or password.");
       }
     } catch (err) {
-      setError('An error occurred during login.');
+      setError("An error occurred during login.");
     }
-    
+
     setIsSubmitting(false);
   };
 
   const demoCredentials = [
-    { email: 'employee@test.com', role: 'Employee' },
-    { email: 'admin@test.com', role: 'Admin' },
+    { email: "employee@test.com", role: "Employee" },
+    { email: "admin@test.com", role: "Admin" },
   ];
 
   return (
@@ -80,7 +100,7 @@ const Login = () => {
                   disabled={isSubmitting}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -94,15 +114,32 @@ const Login = () => {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <Select
+                  value={role}
+                  onValueChange={setRole}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isSubmitting || isLoading}
               >
                 {isSubmitting ? (
@@ -111,7 +148,7 @@ const Login = () => {
                     Signing in...
                   </>
                 ) : (
-                  'Sign in'
+                  "Sign in"
                 )}
               </Button>
             </form>
@@ -130,7 +167,9 @@ const Login = () => {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Demo Accounts</span>
+                <span className="bg-background px-2 text-muted-foreground">
+                  Demo Accounts
+                </span>
               </div>
             </div>
 
@@ -141,7 +180,7 @@ const Login = () => {
                   type="button"
                   onClick={() => {
                     setEmail(cred.email);
-                    setPassword('password');
+                    setPassword("password");
                   }}
                   className="w-full flex items-center justify-between p-3 rounded-md border border-border hover:bg-accent transition-base text-sm"
                 >
@@ -157,7 +196,7 @@ const Login = () => {
         </Card>
 
         <div className="text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/signup" className="text-primary hover:underline">
             Sign up
           </Link>
