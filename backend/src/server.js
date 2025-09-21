@@ -3,6 +3,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const http = require("http");
 const { Server } = require("socket.io");
+const cron = require("node-cron");
+const axios = require("axios");
 require("dotenv").config();
 
 const app = express();
@@ -64,6 +66,15 @@ mongoose
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
+});
+
+cron.schedule("*/10 * * * *", async () => {
+  try {
+    await axios.get("https://bookmychair.onrender.com/api/health");
+    console.log("Pinged health endpoint to keep server awake");
+  } catch (err) {
+    console.error("Failed to ping health endpoint:", err.message);
+  }
 });
 
 const PORT = process.env.PORT || 5001;
