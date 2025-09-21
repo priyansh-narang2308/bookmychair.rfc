@@ -36,7 +36,7 @@ export function useAuth() {
   const login = async (email: string, password: string, role: string) => {
     setIsLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, {
+      const res = await axios.post(`${API_URL}/login`, {
         email,
         password,
         role,
