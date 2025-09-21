@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const API_URL = "https://bookmychair-rfc-1.onrender.com/api/auth";
+const API_URL = "https://bookmychair-rfc-1.onrender.com";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -15,7 +15,7 @@ export function useAuth() {
   ) => {
     setIsLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/register`, {
+      const res = await axios.post(`${API_URL}/api/auth/register`, {
         name,
         email,
         password,
@@ -36,7 +36,7 @@ export function useAuth() {
   const login = async (email: string, password: string, role: string) => {
     setIsLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/login`, {
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
         role,

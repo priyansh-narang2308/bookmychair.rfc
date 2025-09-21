@@ -29,8 +29,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_URL = "https://bookmychair-rfc-1.onrender.com/api/auth";
 
-
-
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -64,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const res = await axios.post(
-        `${API_URL}/login`,
+        `${API_URL}/api/auth/login`,
         { email, password, role },
         { withCredentials: true }
       );
