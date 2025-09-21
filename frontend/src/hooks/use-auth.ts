@@ -23,7 +23,7 @@ export function useAuth() {
       });
       setIsLoading(false);
       return { success: true };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setIsLoading(false);
       return {
@@ -36,7 +36,7 @@ export function useAuth() {
   const login = async (email: string, password: string, role: string) => {
     setIsLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/login`, {
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
         role,
@@ -45,7 +45,7 @@ export function useAuth() {
       localStorage.setItem("token", res.data.token);
       setIsLoading(false);
       return true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setIsLoading(false);
       return false;
