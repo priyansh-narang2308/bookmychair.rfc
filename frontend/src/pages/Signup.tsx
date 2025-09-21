@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -33,6 +33,7 @@ const Signup = () => {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   if (user) {
     return (
@@ -64,7 +65,7 @@ const Signup = () => {
         title: "Account created!",
         description: `Your ${formData.role} account has been created successfully. Please sign in.`,
       });
-      window.location.href = "/login";
+      navigate("/login");
     } else {
       setError(result.error || "Signup failed");
     }
