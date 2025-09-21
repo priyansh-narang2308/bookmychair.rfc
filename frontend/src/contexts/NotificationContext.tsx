@@ -39,12 +39,24 @@ export function NotificationProvider({
   useEffect(() => {
     if (!user || !token) return;
     const s = io(import.meta.env.VITE_API_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      secure: true,
       auth: { token },
       query: { userId: user.id },
     });
     setSocket(s);
     s.on("notification", (notif: Notification) => {
       setNotifications((prev) => [notif, ...prev]);
+    });
+    s.on("connect_error", (err) => {
+      console.error("Socket.IO error:", err.message);
+      if (err.message === "Session ID unknown") {
+        s.disconnect();
+        setTimeout(() => s.connect(), 2000);
+      }
     });
     return () => {
       s.disconnect();

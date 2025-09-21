@@ -56,7 +56,20 @@ interface BackendChair {
   lastBooking?: string;
 }
 
-const socket = io(import.meta.env.VITE_API_URL);
+const socket = io(import.meta.env.VITE_API_URL, {
+  transports: ["websocket", "polling"],
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 1000,
+  secure: true,
+});
+socket.on("connect_error", (err) => {
+  console.error("Socket.IO error:", err.message);
+  if (err.message === "Session ID unknown") {
+    socket.disconnect();
+    setTimeout(() => socket.connect(), 2000);
+  }
+});
 
 const ChairManagement = () => {
   const { token } = useAuth();
