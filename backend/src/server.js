@@ -12,12 +12,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://bookmychair.onrender.com", 
+    origin: "https://bookmychair.onrender.com",
     credentials: true,
   },
 });
 app.set("io", io);
-
 
 app.use(
   cors({
@@ -27,19 +26,15 @@ app.use(
 );
 app.use(express.json());
 
-
 app.get("/api/health", (req, res) => {
   res.json({ status: "Backend running" });
 });
 
-
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
-
 const bookingRoutes = require("./routes/booking");
 app.use("/api", bookingRoutes);
-
 
 const chairRoutes = require("./routes/chair");
 app.use("/api", chairRoutes);
@@ -82,8 +77,8 @@ cron.schedule("*/10 * * * *", async () => {
 const buildPath = path.join(__dirname, "build");
 app.use(express.static(buildPath));
 
-// This will catch all frontend routes and serve index.html
-app.get("*", (req, res) => {
+// Catch-all route (must be last!)
+app.use((req, res) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
 
