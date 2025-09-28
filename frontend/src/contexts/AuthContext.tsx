@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const res = await axios.post(
-        `${API_URL}/api/auth/login`,
+        `${API_URL}/login`,
         { email, password, role },
         { withCredentials: true }
       );
